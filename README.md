@@ -1,4 +1,5 @@
 # node-dir-load
+[![npm](https://img.shields.io/npm/dt/node-dir-load.svg)]()  
 A tool to load all files in a directory.
 
 # Requirements
