@@ -1,7 +1,7 @@
 {
   "name": "node-dir-load",
   "version": "0.0.3",
-  "description": "A tool to load files in a directory",
+  "description": "A tool to load files from a directory",
   "main": "index.js",
   "scripts": {
     "release": "standard-version"
