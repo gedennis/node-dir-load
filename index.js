@@ -1,21 +1,27 @@
 const fs = require('fs');
-
 const path = require('path');
 const defaults = require('lodash/defaults');
 const isRegExp = require('lodash/isRegExp');
 
-const fromFile = module.parent.filename;
-const baseDir = path.dirname(fromFile);
-
+// default directory to load is current dir
+const BASE_DIR = path.dirname(module.parent.filename);
 const allowExts = ['.js', '.json'];
 
-const load = (payload = {}) => {
+const isDir = dir => fs.statSync(dir).isDirectory();
+const doErr = (msg) => { throw new Error(msg); };
+
+const loadDir = (payload = {}) => {
   const opt = defaults(payload, {
-    dirname: baseDir,
+    dirname: BASE_DIR,
     excludeDirs: /^\./,
+    recursive: false,
     filter: /^([^.]+).js(on)?$/,
-    recursive: true,
   });
+
+  if (!path.isAbsolute(opt.dirname)) {
+    opt.dirname = path.resolve(BASE_DIR, opt.dirname);
+  }
+  !isDir(opt.dirname) && doErr('dirname is not a directory.');
 
   if (opt.excludeDirs
     && !isRegExp(opt.excludeDirs)
@@ -23,37 +29,44 @@ const load = (payload = {}) => {
     throw new Error('The option excludeDirs should be an RegExp object.');
   }
 
-  const modules = {};
-  if (!path.isAbsolute(opt.dirname)) {
-    opt.dirname = path.resolve(baseDir, opt.dirname);
-  }
-
-  const isExcludeDirectory = file =>
+  const isExcludeDir = file =>
     (!opt.recursive || (opt.excludeDirs && opt.excludeDirs.test(file)));
 
   const isExcludeFile = (file, ext) =>
     !opt.filter.test(file) || !allowExts.includes(ext);
 
-  fs.readdirSync(opt.dirname).forEach((file) => {
-    const filePath = path.join(opt.dirname, file);
-    if (fs.statSync(filePath).isDirectory()) {
-      if (isExcludeDirectory(file)) return;
 
-      modules[file] = load({
-        dirname: filePath,
-        excludeDirs: opt.excludeDirs,
-        filter: opt.filter,
-        recursive: opt.recursive,
+  const modules = {};
+
+  const doLoad = (file) => {
+    const filePath = path.join(opt.dirname, file);
+
+    const loadSub = () => {
+      if (isExcludeDir(file)) return;
+      const optSub = defaults(opt, { dirname: filePath });
+
+      Object.defineProperty(modules, file, {
+        get: () => loadDir(optSub)
       });
-    } else {
-      const ext = path.extname(filePath);
-      if (isExcludeFile(file, ext)) return;
-      const filename = path.basename(filePath, ext);
-      modules[filename] = module.require(filePath);
-    }
-  });
+      return true;
+    };
+
+    // load sub directory
+    if (isDir(filePath)) loadSub();
+
+    // load file
+    const ext = path.extname(filePath);
+    if (isExcludeFile(file, ext)) return;
+    const filename = path.basename(filePath, ext);
+
+    Object.defineProperty(modules, filename, {
+      get: () => module.require(filePath)
+    });
+  };
+
+  fs.readdirSync(opt.dirname).forEach(doLoad);
 
   return modules;
 };
 
-module.exports = load;
+module.exports = loadDir;

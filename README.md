@@ -6,6 +6,13 @@ A tool to load all files in a directory.
 Node version is above 4.00, which supports ES6.
 > For now, just support .js and .json files. Others extension files WILL BE IGNORED!!!
 
+# Features
+- load all files in the folder
+- filter the files to load
+- exclude the subdirectory to load
+- lazy require to avoid some error of circular dependency
+- relative directory to load
+
 # Get Started
 Install with npm:
 ```shell
