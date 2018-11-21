@@ -1,5 +1,5 @@
 # node-dir-load
-[![npm](https://img.shields.io/npm/dt/node-dir-load.svg)]()  
+[![npm](https://img.shields.io/npm/dt/node-dir-load.svg)]() [![Greenkeeper badge](https://badges.greenkeeper.io/gedennis/node-dir-load.svg)](https://greenkeeper.io/)  
 A tool to load all files in a directory.
 
 # Requirements
