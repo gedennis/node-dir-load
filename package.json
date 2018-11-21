@@ -22,8 +22,8 @@
   },
   "homepage": "https://github.com/gedennis/node-dir-load#readme",
   "devDependencies": {
-    "eslint": "^3.19.0",
-    "eslint-config-airbnb-base": "^11.1.3",
+    "eslint": "^5.9.0",
+    "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.2.0",
     "standard-version": "^4.2.0"
   },
